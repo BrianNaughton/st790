@@ -1,0 +1,42 @@
+Number of persons (n):
+959
+Number of SNPs (p):
+8348674
+How many SNPs on each chromosome?
+1309299 1
+1215399 3
+1090185 5
+ 980944 7
+ 732013 9
+ 815860 11
+ 602809 13
+ 491208 15
+ 477990 17
+ 393615 19
+ 239352 21
+How many SNPs are on the MAP4 gene?
+894
+Create Mendel SNP definition file in mendel_snp.txt
+head mendel_snp.txt
+2.40 = FILE FORMAT VERSION NUMBER.
+ 8348674  = NUMBER OF SNPS LISTED HERE. 
+1-54490 1 54490
+1-55550 1 55550
+1-57033 1 57033
+1-57064 1 57064
+1-57818 1 57818
+1-58432 1 58432
+1-58448 1 58448
+1-58814 1 58814
+Create Mendel pedigree file in mendel_ped.txt
+head mendel_ped.txt
+2,0200001,,,M,
+2,0200002,,,F,
+2,0200003,,,F,
+2,0200004,,,F,
+2,0200005,,,M,
+2,0200006,,,M,
+2,0200007,,,F,
+2,0200008,,,F,
+2,0200009,,,F,
+2,0200012,,,M,
