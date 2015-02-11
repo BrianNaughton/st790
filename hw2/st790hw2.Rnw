@@ -67,20 +67,27 @@ read_chunk('nnmf_function.R')
 <<fig.height=3, fig.width=5, echo=FALSE>>=
 X <- as.matrix(read.table("nnmf-2429-by-361-face.txt"))
 grayColors <- gray(0:100/100)
-X.images <- X[c(327,723), 361:1]
-par(mfrow=c(1,2))
-x.row <- matrix(X.images[1,], 19, 19, byrow = TRUE)
+X.images <- X[c(327, 723), 361:1]
+par(mfrow=c(1, 2))
+x.row <- matrix(X.images[1, ], 19, 19, byrow = TRUE)
 image(z=x.row, col=grayColors, xaxt='n', yaxt='n', main='Image row 327')
-x.row <- matrix(X.images[2,], 19, 19, byrow = TRUE)
+x.row <- matrix(X.images[2, ], 19, 19, byrow = TRUE)
 image(z=x.row, col=grayColors, xaxt='n', yaxt='n', main='Image row 723')
-
-#  r <- 10
-# Vtxt <- as.matrix(read.table("V0.txt"))
-# Wtxt <- as.matrix(read.table("W0.txt"))
-# V <- as.matrix(Vtxt[,1:r])
-# W <- as.matrix(Wtxt[1:r,])
 @
 
+\item Report running times for $ r = 10,20,30,40,50 $ in seconds:
+<<cache=TRUE, echo=FALSE>>=
+V <- as.matrix(read.table("V0.txt"))
+W <- as.matrix(read.table("W0.txt"))
+ranks <- c(10, 20, 30, 40, 50)
+timings <- rep(0, 5)
+names(timings) <- as.character(ranks)
+for (i in 1:5) {
+  r <- ranks[i]
+  timings[i] <- system.time(nnmf(X, r, V[, 1:r], W[1:r, ]))['elapsed']
+}
+print(timings)
+@
 \end{enumerate}
 
 

@@ -1,5 +1,5 @@
 ## ---- nnmfTag
-nnmf <- function(X, r, tol=10e-4, V=NULL, W=NULL) {
+nnmf <- function(X, r, V=NULL, W=NULL, tol=10e-4) {
   m <- nrow(X)  
   n <- ncol(X)
   # Use starting values of all 1's if not provided
@@ -7,7 +7,7 @@ nnmf <- function(X, r, tol=10e-4, V=NULL, W=NULL) {
   if (is.null(W)) W <- matrix(1, r, n)
   B = V %*% W
   notConverged = TRUE
-  oldLoss <- Inf
+  oldLoss <- 1e5
   iter <- 0
   while (notConverged) {
     iter   <- iter +1
@@ -16,8 +16,9 @@ nnmf <- function(X, r, tol=10e-4, V=NULL, W=NULL) {
     W <- W * (t(V) %*% X) / (t(V) %*% B)
     B <- V %*% W
     newLoss <- sum((X - B)^2) # Frobenius norm
-    if (abs(newLoss - oldLoss) / (oldLoss + 1) <= tol) notConverged  <- FALSE
+    objectiveValue <- abs(newLoss - oldLoss) / (oldLoss + 1)
+    if (objectiveValue <= tol) notConverged  <- FALSE
     oldLoss <- newLoss
   }
-  return (list(V=V, W=W))
+  return (list(V=V, W=W, objectiveValue=objectiveValue))
 }
