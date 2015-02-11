@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage{amsmath}
+\newcommand{\xij}{x_{ij}}
+\newcommand{\vik}{v_{ik}}
+\newcommand{\wkj}{w_{kj}}
+\newcommand{\vikt}{v_{ik}^{(t)}}
+\newcommand{\wkjt}{w_{kj}^{(t)}}
+\newcommand{\aikj}{a_{ikj}^{(t)}}
+\newcommand{\bij}{b_{ij}^{(t)}}
+\usepackage[left=1.00in, right=1.00in, top=1.00in, bottom=1.00in]{geometry}
+
+\author{Brian Naughton}
+\title{\vspace{-2cm}ST 790 - HW2}
+\date{February 11, 2015}
+\setlength{\parindent}{0cm}
+\begin{document}
+% \SweaveOpts{concordance=TRUE}
+\maketitle
+\begin{enumerate}
+\item Prove the majorization 
+\[
+  \left( \xij-\sum_k \vik \wkj \right)^2 \leq
+	\sum_k \frac{\aikj}{\bij} \left( \xij - \frac{\bij}{\aikj} \vikt \wkjt \right)^2
+\]
+
+Proof:
+\begin{align*}
+\left( \xij-\sum_k \vik \wkj \right)^2 &= 
+	\xij^2 - 2\xij \sum_k \vik \wkj + \left(\sum_k \vik \wkj\right)^2\\
+	&\leq \xij^2 - 2\xij \sum_k \vik \wkj + \sum_k (\vik \wkj)^2 \\
+	&= \frac{\sum_k \aikj}{\bij} \xij^2 - 2\xij \sum_k \frac{\aikj}{\bij} \frac{\bij}{\aikj}\vik \wkj + \sum_k (\vik \wkj)^2 \\
+	&= \sum_k \frac{\aikj}{\bij} \left( \xij^2 - 2\xij \frac{\bij}{\aikj} \vik \wkj + \left( \frac{\bij}{\aikj}\right)^2 (\vik \wkj)^2 \right)\\
+	&= \sum_k \frac{\aikj}{\bij} \left( \xij - \frac{\bij}{\aikj} \vik \wkj \right)^2.
+\end{align*}
+
+The inequality above is due to the fact that the sum of squares is greater than the square of the sum (note: this could be more rigorously proven using the triangle inequality and induction).\\
+
+Derive the multiplicitive update for $ \vik $:
+\begin{align*}	
+&\frac{\partial}{\partial \vik} \sum_i \sum_j \sum_k \frac{\aikj}{\bij} \left(  \xij - \frac{\bij}{\aikj} \vik \wkjt \right)^2 \overset{set}{=} 0 \\
+&\Rightarrow 2 \sum_j \frac{\aikj}{\bij} \left(  \xij - \frac{\bij}{\aikj} \vik \wkjt \right) \left(   - \frac{\bij}{\aikj} \wkjt \right) = 0 \\
+&\Rightarrow \sum_j \xij \wkjt = \vik \sum_j \frac{(\wkjt)^2 \bij}{\aikj} = \vik \sum_j \frac{\wkjt \bij}{\vikt} \\
+&\Rightarrow v_{ik}^{(t+1)} = \vikt \frac{\sum_j \xij \wkjt }{\sum_j \bij \wkjt}
+\end{align*}
+
+Derive the multiplicitive update for $ \wkj $:
+\begin{align*}	
+&\frac{\partial}{\partial \wkj} \sum_i \sum_j \sum_k \frac{\aikj}{\bij} \left(  \xij - \frac{\bij}{\aikj} \vik \wkjt \right)^2 \overset{set}{=} 0 \\
+&\Rightarrow 2 \sum_i \frac{\aikj}{\bij} \left(  \xij - \frac{\bij}{\aikj} \vikt \wkj \right) \left(   - \frac{\bij}{\aikj} \vikt \right) = 0 \\
+&\Rightarrow \sum_i \xij \vikt = \wkj \sum_i \frac{(\vikt)^2 \bij}{\aikj} = \wkj \sum_i \frac{\vikt \bij}{\wkjt} \\
+&\Rightarrow w_{kj}^{(t+1)} = \wkjt \frac{\sum_i \xij \vikt }{\sum_i \bij \vikt}
+\end{align*}
+
+\end{enumerate}
+\end{document}
