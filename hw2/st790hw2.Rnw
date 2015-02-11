@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{amsmath}
+\usepackage{verbatim}
 \newcommand{\xij}{x_{ij}}
 \newcommand{\vik}{v_{ik}}
 \newcommand{\wkj}{w_{kj}}
@@ -51,5 +52,36 @@ Derive the multiplicitive update for $ \wkj $:
 &\Rightarrow w_{kj}^{(t+1)} = \wkjt \frac{\sum_i \xij \vikt }{\sum_i \bij \vikt}
 \end{align*}
 
+\item Implement algorithm in \verb+R+:
+<<cache=FALSE, include=FALSE>>=
+# Read in code from nnmf_function.R
+read_chunk('nnmf_function.R')
+@
+
+<<nnmfTag>>=
+# Display nnmf() function
+@
+
+\item Read in \verb+nnmf-2429-by-361-face.txt+ and display a couple sample images 
+
+<<fig.height=3, fig.width=5, echo=FALSE>>=
+X <- as.matrix(read.table("nnmf-2429-by-361-face.txt"))
+grayColors <- gray(0:100/100)
+X.images <- X[c(327,723), 361:1]
+par(mfrow=c(1,2))
+x.row <- matrix(X.images[1,], 19, 19, byrow = TRUE)
+image(z=x.row, col=grayColors, xaxt='n', yaxt='n', main='Image row 327')
+x.row <- matrix(X.images[2,], 19, 19, byrow = TRUE)
+image(z=x.row, col=grayColors, xaxt='n', yaxt='n', main='Image row 723')
+
+#  r <- 10
+# Vtxt <- as.matrix(read.table("V0.txt"))
+# Wtxt <- as.matrix(read.table("W0.txt"))
+# V <- as.matrix(Vtxt[,1:r])
+# W <- as.matrix(Wtxt[1:r,])
+@
+
 \end{enumerate}
+
+
 \end{document}
