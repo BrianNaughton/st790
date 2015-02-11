@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{amsmath}
 \usepackage{verbatim}
+\usepackage{bm}
 \newcommand{\xij}{x_{ij}}
 \newcommand{\vik}{v_{ik}}
 \newcommand{\wkj}{w_{kj}}
@@ -53,19 +54,37 @@ Derive the multiplicitive update for $ \wkj $:
 \end{align*}
 
 \item Implement algorithm in \verb+R+:
-<<cache=FALSE, include=FALSE>>=
-# Read in code from nnmf_function.R
-read_chunk('nnmf_function.R')
-@
-
-<<nnmfTag>>=
-# Display nnmf() function
+<<>>=
+nnmf <- function(X, r, V=NULL, W=NULL, tol=10e-4) {
+  m <- nrow(X)  
+  n <- ncol(X)
+  # Use starting values of all 1's if not provided
+  if (is.null(V)) V <- matrix(1, m, r) 
+  if (is.null(W)) W <- matrix(1, r, n)
+  B = V %*% W
+  notConverged = TRUE
+  oldLoss <- 1e5
+  iter <- 0
+  while (notConverged) {
+    iter   <- iter +1
+    V <- V * (X %*% t(W)) / (B %*% t(W))
+    B <- V %*% W
+    W <- W * (t(V) %*% X) / (t(V) %*% B)
+    B <- V %*% W
+    newLoss <- sum((X - B)^2) # Frobenius norm
+    objectiveValue <- abs(newLoss - oldLoss) / (oldLoss + 1)
+    if (objectiveValue <= tol) notConverged  <- FALSE
+    oldLoss <- newLoss
+  }
+  return (list(V=V, W=W, objValue=objectiveValue))
+}
 @
 
 \item Read in \verb+nnmf-2429-by-361-face.txt+ and display a couple sample images 
 
 <<fig.height=3, fig.width=5, echo=FALSE>>=
-X <- as.matrix(read.table("nnmf-2429-by-361-face.txt"))
+path <- 'http://hua-zhou.github.io/teaching/st790-2015spr/'
+X <- as.matrix(read.table(paste(path, 'nnmf-2429-by-361-face.txt', sep='')))
 grayColors <- gray(0:100/100)
 X.images <- X[c(327, 723), 361:1]
 par(mfrow=c(1, 2))
@@ -77,8 +96,10 @@ image(z=x.row, col=grayColors, xaxt='n', yaxt='n', main='Image row 723')
 
 \item Report running times for $ r = 10,20,30,40,50 $ in seconds:
 <<cache=TRUE, echo=FALSE>>=
-V <- as.matrix(read.table("V0.txt"))
-W <- as.matrix(read.table("W0.txt"))
+V <- as.matrix(read.table(paste(path, 'V0.txt', sep='')))
+W <- as.matrix(read.table(paste(path, 'W0.txt', sep='')))
+attributes(V)$dimnames  <- attributes(W)$dimnames  <- NULL
+
 ranks <- c(10, 20, 30, 40, 50)
 timings <- rep(0, 5)
 names(timings) <- as.character(ranks)
@@ -88,7 +109,64 @@ for (i in 1:5) {
 }
 print(timings)
 @
+
+\item Choose $ r = 30 $, and initialize $ \bm V^{(0)} $ and $ \bm W^{(0)} $ with random samples from a Uniform(0,1) distribution.
+<<cache=TRUE>>=
+m <- nrow(X)
+n <- ncol(X)
+r <- 10
+startGiven  <- nnmf(X, r, V[, 1:r], W[1:r, ]) # Using given starting values
+set.seed(327)
+Vrand <- matrix(runif(m*r), m, r)
+Wrand <- matrix(runif(r*n), r, n)
+startRandom <- nnmf(X, r, Vrand, Wrand) # Using random starting values 
+
+# Check to see if the results are the same
+all.equal(startGiven$objValue, startRandom$objValue)
+startGiven$objValue
+startRandom$objValue
+all.equal(startGiven$V, startRandom$V)
+all.equal(startGiven$W, startRandom$W)
+@
+The random starting values do not give the same results ($ \bm V $, $ \bm W $ and objective function) as the given starting values. The objective values are different, but clearly close due to convergence. The first few rows and columns of the W and V matrices are extremely different:
+
+<<>>=
+signif(startGiven$V[1:4, 1:4], 3)
+signif(startRandom$V[1:4, 1:4], 3)
+signif(startGiven$W[1:4, 1:4], 3)
+signif(startRandom$W[1:4, 1:4], 3)
+@
+
+How does it compare to use $ \vik^{(0)} = \wkj^{(0)} = 1 $ for all $i, j, k$?
+<<cache=TRUE>>=
+startOnes <- nnmf(X, r) # nnmf default is to use ones 
+all.equal(startGiven$objValue, startOnes$objValue)
+startGiven$objValue
+startOnes$objValue
+all.equal(startGiven$V, startOnes$V)
+all.equal(startGiven$W, startOnes$W)
+signif(startGiven$V[1:4, 1:4], 3)
+signif(startOnes$V[1:4, 1:4], 3)
+signif(startGiven$W[1:4, 1:4], 3)
+signif(startOnes$W[1:4, 1:4], 3)
+@
+Just as before the results from Q4 are very different than using all 1's as starting values. However, the interesting thing here is that each element of the columns of W are the same, and each element of the rows of V are the same. 
+
+\item Investigate the GPU capabilities, and report the speed gain.
+
+\item Plot the basis images (rows of $ \bm W $) at rank $ r = 50 $.
+<<fig.height=7, fig.width=4.7>>=
+r <- 50
+rank50 <- nnmf(X, r, V[, 1:r], W[1:r, ])
+par(mfrow=c(9,6))
+par(mar=c(1,1,1,1)/2)
+for (k in 1:50) {
+    tmp <- matrix(rank50$W[k, 361:1], 19, 19, byrow = TRUE)   
+    image(z=tmp, col=grayColors, xaxt='n', yaxt='n')
+}
+# image(z=tmp, col=grayColors, xaxt='n', yaxt='n')
+@
+The images are all different features of the faces -- eyes, mouths, cheeks, teeth, etc. This intuitively makes sense because then the rows of V are linear cominations of these features to approximate the original image.
+
 \end{enumerate}
-
-
 \end{document}
