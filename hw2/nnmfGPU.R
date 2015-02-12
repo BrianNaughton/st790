@@ -42,3 +42,4 @@ for (i in 1:5) {
 # Remove all variables except for timingsGPU
 rm(list=setdiff(ls(), 'timingsGPU'))
 save.image('nnmfGPU.Rdata')
+sessionInfo()

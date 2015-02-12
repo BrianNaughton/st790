@@ -2,6 +2,8 @@
 %%  - Ensure that knitr is used weave Rnw files 
 %%    In Rstudio, go to Tools --> Global Options --> Sweave
 %%  - Make sure Rstudio doesn't add the \SweaveOpts{concordance=TRUE} line
+%%  - You may need to change the path to the working directory below
+
 \documentclass{article}
 \usepackage{amsmath}
 \usepackage{verbatim}
@@ -60,6 +62,7 @@ Derive the multiplicitive update for $ \wkj $:
 
 \item Implement algorithm in \verb+R+:
 <<>>=
+setwd('/home/bpnaught/st790-2015spr/hw2/')
 # nnmf() implements the nonnegative matrix factorization algorithm and returns
 #   the solution matrices V, W and the objective value that was minimized.
 # X = (m x n) matrix
@@ -190,7 +193,7 @@ How do they compare to the timings on the CPU?
 <<>>=
 timings / timingsGPU
 @
-This shows there is as much as an x-fold speed up by using the GPU for matrix multiplications! It's also interesting that the timing does not increase that much as r increases for the CPU version
+This shows there is as much as an 5-fold speed up by using the GPU for matrix multiplications! It's also interesting that the timing does not increase that much as r increases for the CPU version
 
 \item Plot the basis images (rows of $ \bm W $) at rank $ r = 50 $.
 <<fig.height=7, fig.width=4.7>>=
@@ -202,6 +205,7 @@ for (k in 1:50) {
     tmp <- matrix(rank50$W[k, 361:1], 19, 19, byrow = TRUE)   
     image(z=tmp, col=grayColors, xaxt='n', yaxt='n')
 }
+sessionInfo()
 @
 The images are all different features of the faces -- eyes, mouths, cheeks, teeth, etc. This intuitively makes sense because then the rows of V are linear cominations of these features to approximate the original image.
 
