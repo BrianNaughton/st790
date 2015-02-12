@@ -38,6 +38,7 @@ for (i in 1:5) {
   r <- ranks[i]
   timingsGPU[i] <- system.time(nnmfGPU(X, r, V[, 1:r], W[1:r, ]))['elapsed']
 }
-print(timingsGPU)
 
-
+# Remove all variables except for timingsGPU
+rm(list=setdiff(ls(), 'timingsGPU'))
+save.image('nnmfGPU.Rdata')

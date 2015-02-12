@@ -14,13 +14,15 @@
 \newcommand{\aikj}{a_{ikj}^{(t)}}
 \newcommand{\bij}{b_{ij}^{(t)}}
 \usepackage[left=1.00in, right=1.00in, top=1.00in, bottom=1.00in]{geometry}
-
+\usepackage{setspace}
 \author{Brian Naughton}
 \title{\vspace{-2cm}ST 790 - HW2}
 \date{February 11, 2015}
 \setlength{\parindent}{0cm}
 \begin{document}
 \maketitle
+\setstretch{1.25}
+
 \begin{enumerate}
 \item Prove the majorization 
 \[
@@ -162,7 +164,33 @@ signif(startOnes$W[1:4, 1:4], 3)
 @
 Just as before the results from Q4 are very different than using all 1's as starting values. However, the interesting thing here is that each element of the columns of W are the same, and each element of the rows of V are the same. 
 
-\item Investigate the GPU capabilities, and report the speed gain.
+\item Investigate the GPU capabilities, and report the speed gain. 
+
+I implemented the same \verb+nnmf()+ function in \verb+R+, but used CUBLAS functions to carry out matrix multiplications. The package \verb+gputools+ was used to provide wrapper functions for the CUBLAS routines. In order to use \verb+gputools+ on the teaching server, some changes need to be made to the package for it to work. Use the following instructions to install \verb+gputools+ on the server:
+
+\begin{enumerate}
+  \item Download \verb+gputools+ package -- gputools\verb+_+0.28.tar.gz
+  \item Unpack it: \verb+tar -zxvf gputools_0.28.tar.gz+
+  \item Open the file: ./gputools/src/Makefile
+  \item Remove the line ``-gencode arch=compute\verb+_+10,code=sm\verb+_+10'' from the file and save it.
+  \item Pack the library back together: \verb+tar -pczf gputools2.tar.gz ./gputools+
+  \item Install it form the command line: \verb+R CMD build gputools && R CMD INSTALL gputools2.tar.gz+
+\end{enumerate}
+
+However, Rstudio cannot find a shared CUDA file, so \verb+gputools+ had to be used  in batch mode. The \verb+R+ script ``nnmfGPU.R'' runs the GPU version of \verb+nnmf()+, and saves the results in an Rdata workspace file. Use the command \verb+R CMD BATCH nnmfGPU.R+ to run it.
+
+Load the timing results:
+
+<<>>=
+load('nnmfGPU.Rdata')
+timingsGPU
+@
+
+How do they compare to the timings on the CPU?
+<<>>=
+timings / timingsGPU
+@
+This shows there is as much as an x-fold speed up by using the GPU for matrix multiplications! It's also interesting that the timing does not increase that much as r increases for the CPU version
 
 \item Plot the basis images (rows of $ \bm W $) at rank $ r = 50 $.
 <<fig.height=7, fig.width=4.7>>=
@@ -174,7 +202,6 @@ for (k in 1:50) {
     tmp <- matrix(rank50$W[k, 361:1], 19, 19, byrow = TRUE)   
     image(z=tmp, col=grayColors, xaxt='n', yaxt='n')
 }
-# image(z=tmp, col=grayColors, xaxt='n', yaxt='n')
 @
 The images are all different features of the faces -- eyes, mouths, cheeks, teeth, etc. This intuitively makes sense because then the rows of V are linear cominations of these features to approximate the original image.
 
