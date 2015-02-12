@@ -36,7 +36,7 @@ timingsGPU <- rep(0, 5)
 names(timingsGPU) <- as.character(ranks)
 for (i in 1:5) {
   r <- ranks[i]
-  timingsGPU[i] <- system.time(nnmf(X, r, V[, 1:r], W[1:r, ]))['elapsed']
+  timingsGPU[i] <- system.time(nnmfGPU(X, r, V[, 1:r], W[1:r, ]))['elapsed']
 }
 print(timingsGPU)
 
