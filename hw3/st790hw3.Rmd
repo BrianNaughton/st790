@@ -1,0 +1,189 @@
+---
+title: "ST790 - HW3"
+author: "Brian Naughton"
+date: "02/24/2015"
+output: html_document
+---
+1. **Least squares**: Yes, it is convex.  
+    *Proof*: $$ l(\beta)=\frac{1}{2}\|y-X\beta\|^2_2=\frac{1}{2}(y-X\beta)'(y-X\beta) \\ \nabla l(\beta)= -X'y + X'X\beta \\
+    \nabla^2 l(\beta)=X'X \succeq 0 $$
+    Since $\nabla^2 l(\beta)$ is psd, $l(\beta)$ is convex.  
+  
+    **General least squares**: Yes, it is convex.  
+    *Proof*: $$ l(\beta)=\frac{1}{2}\|y-X\beta\|^2_2=\frac{1}{2}(y-X\beta)'\Omega^{-1}(y-X\beta) \\ \nabla l(\beta)= -X'\Omega^{-1}y + X'\Omega^{-1}X\beta \\
+    \nabla^2 l(\beta)=X'\Omega^{-1}X = Z'Z \succeq 0, $$
+    where $Z=\Omega^{-1/2}X$. Since $\nabla^2 l(\beta)$ is psd, $l(\beta)$ is convex.  
+    
+    **Nonlinear least squares**: No, it is not convex.  
+    Let $n=1$,  $y=0$, $x=1$,  $f(x; \beta)=x\beta^2 -1$,  $\beta_1=-1$,  $\beta_2=1$ and $\theta=0.5$.  
+    Then, trying to apply the definition of convexity, the left hand side (LHS) is  $$ l\left(\theta\beta_1+(1-\theta)\beta_2\right) = l(.5-.5) = l(0) = \frac{1}{2}(0-(-1))^2=\frac{1}{2},$$
+    and the right hand side (RHS) is 
+    $$ \theta * l(\beta_1) + (1-\theta)*l(\beta_2 )=.5*l(-1)+.5*l(1) \\ =.5(\frac{1}{2}(0-0)^2)+.5(\frac{1}{2}(0-0)^2)=0. $$
+    For this choice of $\beta$ and $\theta$, the $LHS > RHS$, so $l$ is not convex.  
+    
+    
+2. **$l_p$ regression**: No, it is not convex for $0 < p < 1$.  
+  For example, let $n=2$, $p=0.5$, $\beta_1=(1,0)'$, $\beta_2=(0,1)'$, $y=(0,0)'$, $X=\left(\begin{array}{rr}1 & 0 \\0 & 1\end{array}\right)$ and $\theta=0.5$.  
+  Trying to apply the definition of convexity, the LHS is 
+  $$ l(.5\beta_1 + .5\beta_2) = \|(.5, .5)'\|_{.5} = (\sqrt{.5} + \sqrt{.5})^2 = 2, $$  
+  and the RHS is 
+  $$ .5*l(\beta_1) + .5*l(\beta_2) = (.5(1)+.5(1))^2 = 1. $$  
+  For this choice of $\beta$ and $\theta$, the $LHS > RHS$, so $l_p$ is not necessarily convex. However, it is convex when $l_p$ is a proper norm, i.e. when $p\geq1$.  
+  *Proof*:  $$ 
+  l(\theta\beta_1 + (1-\theta)\beta_2)_p = \|y-X(\theta\beta_1 + (1-\theta)\beta_2) \|_p\\ 
+  = \|\theta y - \theta X\beta_1 + (1-\theta) y - (1-\theta) X\beta_1 \|_p \\
+  \leq \|\theta(y-X\beta) \|_p + \|(1-\theta)(y-X\beta) \|_p \\
+  = \theta\|y-X\beta\|_p + (1-\theta)\|y-X\beta\|_p \\ 
+  = \theta l(\beta_1)_p + (1-\theta) l(\beta_2)_p,
+   $$
+  so $l_p$ is convex by the definition for $p\geq1$. Note, the inequality is due to the triangle inequality that is required of proper norms.  
+
+3. **Worst $k$ error regression**: Yes, it is convex.  
+  *Proof*: 
+    * First, note that $r_i(\beta)=|y_i - x_i'\beta|$ is convex because it is the $l_1$ norm (see Q2).  
+    * Let $A_1, \dots, A_s$ be all possible subsets of size $k$ (without replacement) from $\{1, 2, \dots, n\}$, where $s={n \choose k}$. 
+    * Let $l_j(\beta)=\sum_{i\in A_j}r_i(\beta)$, which is the sum of convex functions, and therefore convex.
+    * Finally, notice that $l(\beta)=max\{l_1(\beta), \dots, l_s(\beta)\}=\sum_{i=1}^k r_{(i)}(\beta)$. Since the maximum of convex functions is convex, this proves $l(\beta)$ is convex.   
+
+
+4. **Quantile Regression**: Yes, it is convex.  
+  *Proof*: For simplicity, let's consider the case for $n=1$ (if $l_\tau(\beta)$ is convex for n=1, it is also true for n>1 since it would then be a sum of convex functions, which is convex. Also, for simplicity let $z_1=y_i-x_i'\beta_1$ and $z_2=y_i-x_i'\beta_2$. So,
+  $$ l_\tau(\theta \beta_1 + (1-\theta) \beta_2) = \rho_\tau(\theta z_1 + (1-\theta)z_2)\\
+  = (\theta z_1 + (1-\theta)z_2)(\tau - I_{\{ \theta z_1 + (1-\theta)z_2 < 0 \}}) \\
+  = \theta z_1 (\tau - I_{\{ \theta z_1 + (1-\theta)z_2  < 0\}}) + (1-\theta)z_2 (\tau - I_{\{ \theta z_1 + (1-\theta)z_2  < 0\}}).
+  $$ 
+  Consider the first part of the above equation  
+    * If $z_1 >= 0$, then  
+      $$ (\tau - I_{\{ \theta z_1 + (1-\theta)z_2  < 0\}}) \leq \tau =  (\tau - I_{\{ \theta z_1 < 0\}}). $$
+      So, $$ \theta z_1(\tau - I_{\{ \theta z_1 + (1-\theta)z_2  < 0\}}) \leq \theta z_1 (\tau - I_{\{ \theta z_1 < 0\}}). $$ 
+    * If $z_1 < 0$, then  
+      $$ (\tau - I_{\{ \theta z_1 + (1-\theta)z_2  < 0\}}) \geq \tau - 1 =  (\tau - I_{\{ \theta z_1 < 0\}}). $$
+      So, $$ \theta z_1(\tau - I_{\{ \theta z_1 + (1-\theta)z_2  < 0\}}) \leq \theta z_1 (\tau - I_{\{ \theta z_1 < 0\}}). $$   
+      
+    A similar proof can be given to show the second part of the equation above: 
+    $$ (1-\theta) z_2(\tau - I_{\{ \theta z_1 + (1-\theta)z_2  < 0\}}) \leq (1-\theta) z_2 (\tau - I_{\{ (1-\theta) z_2 < 0\}}). $$  
+    Continuing the proof:
+    $$ l_\tau(\theta \beta_1 + (1-\theta) \beta_2) \leq \theta z_1 (\tau - I_{\{ \theta z_1 < 0\}}) + (1-\theta) z_2 (\tau - I_{\{ (1-\theta) z_2 < 0\}}) \\
+    = \theta \rho_\tau(z_1) + (1-\theta)\rho_\tau(z_2) = \theta l_\tau(\beta_1) + (1-\theta) l_\tau(\beta_2), $$
+  proving convexity by definition.  
+  
+    Plot $\rho_\tau(z)$ for $\tau=\{.05,.25,.5\}$. It is clearly convex for the values of $\tau$ here:
+```{r}
+  rho <- function(tau, z) {
+    z*(tau-(z<0))
+  }
+  zs <- -100:100
+  par(mfrow=c(1,3))
+  for (tau in c(.05, .25, .5)) {
+    plot(zs, rho(tau, zs), type='l', main=paste("tau =",tau), xlab="z",
+         ylab="rho_tau(z)")
+  }
+```
+
+5. **Variance component model**: No, it is not convex.  
+    Consider the case where $m=2$, $p=2$, $(y-X\beta)=(1,1)'$, 
+    $V_1=\left(\begin{array}{rr}1 & 0 \\0 & 5\end{array}\right)$, 
+    $V_2=\left(\begin{array}{rr}5 & 0 \\0 & 1\end{array}\right)$,
+    $\sigma_{1a}^2=1$, $\sigma_{2a}^2=0$,  $\sigma_{1b}^2=0$, $\sigma_{2a}^2=1$, 
+    and $\theta=.5$. To check convexity by using the definition, the LHS is:
+    $$ l(\theta (\sigma_{1a}^2, \sigma_{2a}^2) + (1-\theta) (\sigma_{1b}^2, \sigma_{2b}^2)) = \\
+    \frac{1}{2} ln(2\pi) + \frac{1}{2} ln~ det\left(\begin{array}{rr} 3 & 0 \\0 & 3\end{array}\right)
+    + \frac{1}{2}(1,1) \left(\begin{array}{rr} 1/3 & 0 \\0 & 1/3\end{array}\right) \left(\begin{array}{r} 1 \\ 1\end{array}\right) \\ 
+    = \frac{1}{2} ln(2\pi) + \frac{1}{2} ln(9) + \frac{1}{3} \approx 
+    `r round(.5*log(2*pi) + .5*log(9) + 1/3, 3)`. $$
+  The RHS is:
+    $$ \theta * l( (\sigma_{1a}^2, \sigma_{2a}^2))  + (1-\theta) * l(\sigma_{1b}^2, \sigma_{2b}^2)) \\
+    = 0.5 \left( \frac{1}{2} ln(2\pi) + \frac{1}{2} ln~ det\left(\begin{array}{rr} 1 & 0 \\0 & 5\end{array}\right)
+    + \frac{1}{2}(1,1) \left(\begin{array}{rr} 1 & 0 \\0 & 1/5\end{array}\right) \left(\begin{array}{r} 1 \\ 1\end{array}\right) \right) \\
+    + 0.5 \left(\frac{1}{2} ln(2\pi) + \frac{1}{2} ln~ det\left(\begin{array}{rr} 5 & 0 \\0 & 1\end{array}\right)
+    + \frac{1}{2}(1,1) \left(\begin{array}{rr} 1/5 & 0 \\0 & 1\end{array}\right) \left(\begin{array}{r} 1 \\ 1\end{array}\right) \right) \\
+    = \frac{1}{2} ln(2\pi) + \frac{1}{2} ln(5)+ \frac{3}{5} \approx 
+    `r round(.5*log(2*pi) + .5*log(5) + 3/5, 3)`. $$  
+  For these choices of $\beta$, $\sigma_1^2$, $\sigma_2^2$ and $\theta$, the $LHS > RHS$, so $l$ is not convex.  
+    
+6. **Linear Mixed Model**: No, it is not convex.  
+    The negative log-likelihood is 
+    $$ l(\beta, R, \sigma_0^2) = \frac{1}{2} ln(2\pi) + \frac{1}{2} log~det(V) + \frac{1}{2}(y-X\beta)'V^{-1}(y-X\beta), $$
+    where $V=\sigma_0^2 I + ZRZ'$.  
+    Note, we can construct a special case of the variance component model from Q5. If we let $Z=\left(\begin{array}{rr} 1 & 0 \\0 & 1\end{array}\right)$, $(y-X\beta)=(1,1)'$, $R_1=\left(\begin{array}{rr} 1/2 & 0 \\0 & 9/2 \end{array}\right)$, $R_2=\left(\begin{array}{rr} 9/2 & 0 \\0 & 1/2 \end{array}\right)$, $\sigma_0^2=\frac{1}{2}$, then
+    $$ V_1=\left(\begin{array}{rr} 5 & 0 \\0 & 1 \end{array}\right), ~~  V_2=\left(\begin{array}{rr} 1 & 0 \\0 & 5 \end{array}\right), $$ 
+    which is the exact counter example I showed in Q5.  
+
+7. **Gaussian Mixture Model**: No, it is not convex.  
+    The negative log-likelihood is 
+    $$ l(\{\pi_j\}_1^k, \{\mu_j\}_1^k, \{\Omega\}_1^k) = 
+    -log \left\lbrace \sum_{j=1}^k \pi_j * (2\pi)^{-d/2}
+      | \Omega_j | ^{-1/2} exp\left( \frac{1}{2} (y-\mu_j)'\Omega_j ^ {-1} (y-\mu_j) \right)  \right\rbrace
+    $$  
+    Consider the case where $d=2$, $k=2$, $y=(1,1)'$, $\mu_1=\mu_2=(0,0)'$, $\pi_1=\pi_2=0.5$, $\Omega_{1a}= \left(\begin{array}{rr} 1 & 0 \\0 & 1\end{array}\right)$, $\Omega_{2a}= \left(\begin{array}{rr} 3 & 0 \\0 & 3\end{array}\right)$, $\Omega_{1b}= \left(\begin{array}{rr} 5 & 0 \\0 & 5\end{array}\right)$, $\Omega_{2b}= \left(\begin{array}{rr} 3 & 0 \\0 & 3\end{array}\right)$, and $\theta=0.5$.  
+    To check convexity by using the definition, the LHS is:
+    $$ l\left(\theta \left\lbrace \Omega_{1a}, \Omega_{2a}  \right\rbrace + 
+         (1-\theta) \left\lbrace \Omega_{1b}, \Omega_{2b}  \right\rbrace\right)
+    = l\left( \left\lbrace \left(\begin{array}{rr} 3 & 0 \\0 & 3\end{array}\right), \left(\begin{array}{rr} 3 & 0 \\0 & 3\end{array}\right) \right\rbrace \right) \\
+    = -log \left\lbrace (2\pi)^{-1} det \left(\begin{array}{rr} 3 & 0 \\0 & 3\end{array}\right)^{-1/2} exp\left( \frac{1}{2} (1, 1)' \left(\begin{array}{rr} 1/3 & 0 \\0 & 1/3\end{array}\right) \left(\begin{array}{r} 1 \\1 \end{array}\right) \right)  \right\rbrace \\
+    = log(2\pi) + 0.5 * log(9) + \frac{1}{3} \approx `r round(log(2*pi) + .5*log(9) + 1/3, 3)`
+    $$
+    The RHS is 
+    $$
+    \theta * l \left( \left\lbrace \left(\begin{array}{rr} 1 & 0 \\0 & 1\end{array}\right), \left(\begin{array}{rr} 3 & 0 \\0 & 3\end{array}\right) \right\rbrace \right) + (1-\theta) * l \left( \left\lbrace \left(\begin{array}{rr} 5 & 0 \\0 & 5\end{array}\right), \left(\begin{array}{rr} 3 & 0 \\0 & 3\end{array}\right) \right\rbrace \right) \\
+    = -0.5 log \left( 0.5 (2\pi)^{-1} * 1 * exp\left( -1 \right) 
+                      + 0.5 (2\pi)^{-1} * 9^{-1/2} * exp\left( -1/3 \right) \right) \\
+    -0.5 log \left( 0.5 (2\pi)^{-1} * 25^{-1/2} * exp\left( -1/5 \right) 
+                      + 0.5 (2\pi)^{-1} * 9^{-1/2} * exp\left( -1/3 \right) \right) \\
+    = -0.5 log \left( \frac{1}{4\pi} * \left( exp( -1) + \frac{1}{3} exp(-1/3)  \right) \right) \\
+    -0.5 log \left( \frac{1}{4\pi} * \left( \frac{1}{5} * exp(-1/5) + \frac{1}{3} exp(-1/3) \right) \right) \\
+    \approx `r round(-.5*log(.25/pi * (exp(-1)+(1/3)*exp(-1/3)) ) + 
+    -.5*log(.25/pi * ((1/3)*exp(-1/3) + (1/5)*exp(-1/5))), 3) `
+    $$  
+    For these choices of $\mu_1$, $\mu_2$, $\pi_1$, $\pi_2$, $\Omega_{1a}$, $\Omega_{1b}$, $\Omega_{2a}$, $\Omega_{2b}$, and $\theta$, the $LHS > RHS$, so $l$ is not convex.  
+    
+8. **Logistic Regression**: Yes, it is convex.  
+    $$
+    l(\beta)=-\sum_{i=1}^n \left\lbrace y_ix_i'\beta - ln \left( 1 + exp(x_i'\beta) \right) \right\rbrace \\
+    = \sum ln \left( 1 + exp(x_i'\beta) \right) - \sum y_ix_i'\beta
+    $$
+    * Note that $x_i'\beta$ is convex because it is linear. So $-y_ix_i'\beta$ is also convex because it is linear.  
+    * $exp(x_i'\beta)$ is log-convex, which implies that $1+exp(x_i'\beta)$ is also log-convex. Therefore, $log(1+exp(x_i'\beta)$ is convex.
+    * Since $l(\beta)$ is the sum of convex functions, it is also convex.  
+       
+    **GLM with canonical link**: Yes, it is convex. The negative log-likelihood of a GLM with canonical link is:  
+    $$
+    l(\beta) = \sum_{i=1}^n \frac{b(x_i'\beta)-y_ix_i'\beta}{a_i(\phi)} \\
+    \nabla l(\beta) = \sum_{i=1}^n \frac{b'(x_i'\beta)x_i - y_ix_i}{a_i(\phi)} \\
+    \nabla^2 l(\beta) = \sum_{i=1}^n \frac{b''(x_i'\beta)}{a_i(\phi)}x_i x_i'
+    $$
+    Since $Var(y_i)=b''(x_i'\beta)a(\phi)>0$, then $\frac{b''(x_i'\beta)}{a_i(\phi)}>0$. Also, $x_i x_i' \succeq 0$, so $\nabla^2l(\beta)$ is psd. Therefore, $l(\beta)$ is convex.  
+
+9. **Gaussian Covariance estimation**: No, it is not convex.  
+    The negative log-likelihood is  
+    $$
+    l(\Sigma)=\frac{np}{2}log(2\pi) + \frac{n}{2} log~det\Sigma + \frac{1}{2} \sum_{i=1}^n X_i'\Sigma^{-1}X_i.   
+    $$  
+    Consider the case where $n=2$, $p=2$, $X_1=(1,1)'$, $X_2=(2,2)'$,  $\Sigma_{1}= \left(\begin{array}{rr} 2 & 0 \\0 & 2\end{array}\right)$, $\Sigma_{2}= \left(\begin{array}{rr} 100 & 0 \\0 & 100\end{array}\right)$, and $\theta=0.5$. To check convexity by using the definition, the LHS is:    
+    $$
+    l\left(\theta\Sigma_1 + (1-\theta)\Sigma_2 \right) = l\left(\left(\begin{array}{rr} 51 & 0 \\0 & 51\end{array}\right) \right) \\
+    = 2log(2\pi) + log~det\left(\begin{array}{rr} 51 & 0 \\0 & 51\end{array}\right) \\
+    +  \frac{1}{2} \left\lbrace (1, 1)\left(\begin{array}{rr} 1/51 & 0 \\0 & 1/51\end{array}\right) \left(\begin{array}{r} 1 \\1\end{array}\right) +(2, 2)\left(\begin{array}{rr} 1/51 & 0 \\0 & 1/51\end{array}\right) \left(\begin{array}{r} 2 \\2\end{array}\right) \right\rbrace \\
+    = 2log(2\pi) + log(2601) + 51 + 204 \approx `r round(2*log(2*pi) +log(2601) + 51 + 204, 2)`  
+    $$  
+    The RHS is  
+    $$
+    \theta l(\Sigma_1) + (1-\theta)l(\Sigma_2) = .5l\left(\left(\begin{array}{rr} 2 & 0 \\0 & 2\end{array}\right) \right) + .5l\left(\left(\begin{array}{rr} 100 & 0 \\0 & 100\end{array}\right) \right)\\ 
+    = 2log(2\pi) + .5 log(4) + .5 log(10000) + 1 + 4 + 50 +200 \\
+    \approx `r round(2*log(2*pi) +.5 *log(4) + .5 *log(10000) + 1 + 4 + 50 + 200, 2)` 
+    $$
+    For these choices of $\Sigma_1$, $\Sigma_2$, and $\theta$, the $LHS > RHS$, so $l$ is not convex.  
+
+10. **Gaussian precision matrix estimation**: Yes, it is convex.  
+  The negative log-likelihood is  
+  $$
+  l(\Omega) = \frac{np}{2}log(2\pi) + \frac{n}{2} log~det~\left(\Omega^{-1}\right) + \frac{1}{2} \sum_{i=1}^n X_i'\Omega X_i \\
+  = \frac{np}{2}log(2\pi) + \frac{n}{2} log\left(det~\Omega\right)^{-1} + \frac{1}{2} \sum_{i=1}^n X_i'\Omega X_i \\
+  = \frac{np}{2}log(2\pi) - \frac{n}{2} log~det~\Omega + \frac{1}{2} \sum_{i=1}^n X_i'\Omega X_i
+  $$
+    * The first part of $l(\Omega)$ is constant
+    * For the second part, the log determinant of a positive definite matrix is concave. So, the negative log det is convex. 
+    * The last part is linear in $\Omega$, so it is convex. To see this, define $f(\Omega)=X'\Omega X$ for some $X$:
+    $$ f\left(\theta\Omega_1 +(1-\theta)\Omega_2\right) = X'\left(\theta\Omega_1 +(1-\theta)\Omega_2 \right)X \\
+      = \theta X'\Omega_1 X + (1-\theta) X'\Omega_2 X\\ = \theta f(\Omega_1) +(1-\theta)f(\Omega_2).  $$
+    * So $l(\Omega)$ is a sum of convex functions, which is convex. 
