@@ -1,0 +1,31 @@
+---
+title: "CompareTUVN_R"
+author: "Brian Naughton"
+date: "04/29/2015"
+output: html_document
+---
+
+This Rmarkdown file investigates the computational speed of Geweke's algorithm for sampling from a truncated univariate standard normal distribution. The regions were chosen to be compared with those sampled from the `TruncatedMVN.jl` package.  
+
+```{r}
+sessionInfo()
+set.seed(327)
+```
+ - Region: $[-1.0, 2.0]:$
+```{r}
+library(truncnorm)
+system.time(rtruncnorm(100000, -1.0, 2, 0, 1))
+```
+ - Region: $[0.2, 3.0]:$
+```{r}
+system.time(rtruncnorm(100000, 0.2, 3, 0, 1))
+```
+ - Region: $[-1.0, 1.0]:$
+```{r}
+system.time(rtruncnorm(100000, -1, 1, 0, 1))
+```
+ - Region: $[1.0, 5.0]:$
+```{r}
+system.time(rtruncnorm(100000, 1, 5, 0, 1))
+
+```
